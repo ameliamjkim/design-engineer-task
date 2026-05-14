@@ -20,3 +20,9 @@
 .animate-barber {
   animation: barber 2s linear infinite;
 }
+
+.build-row:hover:not(
+    :has(.build-actions:hover, .job-pills:hover, .failure-spotlight:hover)
+  ) {
+  @apply bg-zinc-100;
+}
