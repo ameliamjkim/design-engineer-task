@@ -108,10 +108,11 @@ const BuildActionsComboButton: React.FC<BuildActionsComboButtonProps> = ({
             key={`${action.label}-${index}`}
             type="button"
             onClick={() => action.onClick()}
+            // "destructive" variant is defined in ActionItem but no action currently uses it
             className={`inline-flex flex-shrink-0 items-center gap-1 rounded-md border border-gray-300 px-1.5 py-1 text-xs font-medium leading-none shadow-sm transition-colors sm:gap-1.5 sm:px-2.5 sm:text-sm ${
               action.variant === "destructive"
-                ? "bg-red-50 text-red-700 hover:bg-red-100"
-                : "bg-white text-gray-700 hover:bg-gray-50"
+                ? "bg-red-50 text-red-700 hover:bg-red-100 focus-visible:bg-red-100"
+                : "bg-white text-gray-700 hover:bg-gray-50 focus-visible:bg-gray-50"
             }`}
           >
             {Icon && (
