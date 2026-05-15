@@ -22,7 +22,7 @@
 }
 
 .build-row:hover:not(
-    :has(.build-actions:hover, .job-pills:hover, .failure-spotlight:hover)
+    :has(button:hover, .build-actions:hover, .job-pills:hover, .failure-spotlight:hover)
   ) {
   @apply bg-zinc-100;
 }
