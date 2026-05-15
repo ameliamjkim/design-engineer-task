@@ -392,52 +392,58 @@ const BuildHeader: React.FC<BuildHeaderProps> = ({
                 {/* Failure spotlight — role="alert" announces failures when the section expands. */}
                 {failedJobs.length > 0 && (
                   <div
-                    className="rounded-md bg-red-50 border border-red-200 px-3 py-2.5"
+                    className="failure-spotlight cursor-auto rounded-md bg-red-50 border border-red-200 px-3 py-2.5"
                     role="alert"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <p className="text-xs font-semibold text-red-600 uppercase tracking-wide mb-1.5">
                       {failedJobs.length === 1
                         ? "1 failure"
                         : `${failedJobs.length} failures`}
                     </p>
-                    <ul className="space-y-0.5">
+                    <ul className="space-y-0.5" >
                       {failedJobs.map((job) => (
-                        <li
-                          key={job.id}
-                          onClick={(e) => e.stopPropagation()}
-                          className="failure-spotlight group flex items-center gap-2 text-sm rounded hover:bg-red-100 -mx-1 px-1 py-0.5 transition-colors"
-                        >
-                          <X
-                            size={13}
-                            strokeWidth={2.5}
-                            className="text-red-500 flex-shrink-0"
-                            aria-hidden="true"
-                          />
-                          <span className="font-medium text-red-900">
-                            {job.name}
-                          </span>
-                          {job.command && (
-                            <code className="text-xs text-red-400 font-mono">
-                              {job.command}
-                            </code>
-                          )}
-                          {job.exitCode !== null && (
-                            <code className="text-xs text-red-600 bg-red-100 group-hover:bg-red-200 px-1.5 py-0.5 rounded font-mono">
-                              exit {job.exitCode}
-                            </code>
-                          )}
-                          <span className="text-xs text-red-600 ml-auto">
-                            {job.duration}
-                          </span>
+                        <li key={job.id}>
                           <button
                             type="button"
-                            className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:text-red-700 transition p-0.5 rounded text-red-400 hover:text-red-700 flex-shrink-0"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               // TODO: navigate to job logs for job.id
                             }}
-                            aria-label={`View logs for ${job.name}`}
+                            aria-label={
+                              job.exitCode !== null
+                                ? `View logs for ${job.name}, exit code ${job.exitCode}`
+                                : `View logs for ${job.name}`
+                            }
+                            className="failure-spotlight group w-full flex items-center gap-2 text-sm text-left cursor-pointer rounded hover:bg-red-100 focus-visible:bg-red-100 focus-visible:outline-none -mx-1 px-1 py-0.5 transition-colors"
                           >
-                            <ExternalLink size={12} aria-hidden="true" />
+                            <X
+                              size={13}
+                              strokeWidth={2.5}
+                              className="text-red-500 flex-shrink-0"
+                              aria-hidden="true"
+                            />
+                            <span className="font-medium text-red-900">
+                              {job.name}
+                            </span>
+                            {job.command && (
+                              <code className="text-xs text-red-400 font-mono">
+                                {job.command}
+                              </code>
+                            )}
+                            {job.exitCode !== null && (
+                              <code className="text-xs text-red-600 bg-red-100 group-hover:bg-red-200 px-1.5 py-0.5 rounded font-mono">
+                                exit {job.exitCode}
+                              </code>
+                            )}
+                            <span className="text-xs text-red-600 ml-auto">
+                              {job.duration}
+                            </span>
+                            <ExternalLink
+                              size={12}
+                              aria-hidden="true"
+                              className="opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 text-red-400 group-hover:text-red-700 transition flex-shrink-0"
+                            />
                           </button>
                         </li>
                       ))}
