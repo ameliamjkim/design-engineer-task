@@ -17,11 +17,10 @@ import {
   ChevronsDownUp,
   Check,
   Loader2,
-  ExternalLink,
 } from "lucide-react";
 import BuildActionsComboButton from "./BuildActionsComboButton";
 import { HeaderBreadcrumbStubs } from "./HeaderBreadcrumbStubs";
-import JobPill from "./JobPill";
+import FailureStackTrace from "./FailureStackTrace";
 import { BuildStep } from "@/types/build";
 import { cn } from "@/lib/utils";
 import {
@@ -82,7 +81,7 @@ const BuildHeader: React.FC<BuildHeaderProps> = ({
   className = "",
   buildSteps = [],
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [isRowFocused, setIsRowFocused] = useState(false);
 
   const statusColors = getStatusColors(status);
@@ -104,6 +103,7 @@ const BuildHeader: React.FC<BuildHeaderProps> = ({
           exitCode: j.exitCode,
           duration: j.duration,
           command: j.command,
+          logExcerpt: j.logExcerpt,
         }));
     }
     return step.status === "failed"
@@ -114,12 +114,11 @@ const BuildHeader: React.FC<BuildHeaderProps> = ({
             exitCode: step.exitCode ?? null,
             duration: step.duration ?? "--",
             command: step.command,
+            logExcerpt: step.logExcerpt,
           },
         ]
       : [];
   });
-
-  const firstFailedStep = buildSteps.find((s) => s.status === "failed");
 
   const prefix = STATUS_PREFIX[status] ?? "Pending for";
 
@@ -128,14 +127,16 @@ const BuildHeader: React.FC<BuildHeaderProps> = ({
       <div
         className={cn(
           `build-row group relative flex flex-col mx-2 lg:mx-3 mt-2
-            rounded-md border bg-white
+            rounded-md border
             transition-all duration-200
             shadow-[inset_0_1px_0_0_rgba(255,255,255,0.9),0_1px_3px_0_rgba(0,0,0,0.08)]`,
+          statusColors.bgColor,
           isRowFocused && "outline outline-2 outline-blue-500 outline-offset-2",
           pullRequest && "cursor-pointer",
           className,
         )}
         style={{ borderColor: statusColors.topBorderColorHex }}
+        data-status={status}
         onClick={pullRequest ? () => setIsExpanded(!isExpanded) : undefined}
       >
         {/* Breadcrumb row */}
@@ -392,7 +393,7 @@ const BuildHeader: React.FC<BuildHeaderProps> = ({
                 {/* Failure spotlight — role="alert" announces failures when the section expands. */}
                 {failedJobs.length > 0 && (
                   <div
-                    className="failure-spotlight cursor-auto rounded-md bg-red-50 border border-red-200 px-3 py-2.5"
+                    className="failure-spotlight cursor-auto rounded-md bg-red-100 border border-red-300 px-3 py-2.5"
                     role="alert"
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -415,7 +416,7 @@ const BuildHeader: React.FC<BuildHeaderProps> = ({
                                 ? `View logs for ${job.name}, exit code ${job.exitCode}`
                                 : `View logs for ${job.name}`
                             }
-                            className="failure-spotlight group w-full flex items-center gap-2 text-sm text-left cursor-pointer rounded hover:bg-red-100 focus-visible:bg-red-100 focus-visible:outline-none -mx-1 px-1 py-0.5 transition-colors"
+                            className="failure-spotlight group w-full flex items-center gap-2 text-sm text-left cursor-pointer rounded hover:bg-red-200 focus-visible:bg-red-200 focus-visible:outline-none -mx-1 px-1 py-0.5 transition-colors"
                           >
                             <X
                               size={13}
@@ -439,11 +440,6 @@ const BuildHeader: React.FC<BuildHeaderProps> = ({
                             <span className="text-xs text-red-600 ml-auto">
                               {job.duration}
                             </span>
-                            <ExternalLink
-                              size={12}
-                              aria-hidden="true"
-                              className="opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 text-red-400 group-hover:text-red-700 transition flex-shrink-0"
-                            />
                           </button>
                         </li>
                       ))}
@@ -451,109 +447,20 @@ const BuildHeader: React.FC<BuildHeaderProps> = ({
                   </div>
                 )}
 
-                {/* Pipeline steps — role="list" + aria-label for screen readers;
-                      status icons are aria-hidden with sr-only text alternatives. */}
-                <ul
-                  className="space-y-0.5"
-                  role="list"
-                  aria-label="Pipeline steps"
-                >
-                  {buildSteps.map((step) => {
-                    const isPending = step.status === "pending";
-                    const isFailed = step.status === "failed";
-                    const isComplete = step.status === "complete";
-                    const isRunning = step.status === "in-progress";
-
-                    return (
-                      <li key={step.id}>
-                        <div
-                          className={`flex items-center gap-2 px-1.5 py-1 rounded-sm ${isPending ? "opacity-40" : ""}`}
-                        >
-                          <span
-                            className="flex-shrink-0 w-4 flex items-center justify-center"
-                            aria-hidden="true"
-                          >
-                            {isComplete && (
-                              <Check
-                                size={13}
-                                strokeWidth={3}
-                                className="text-green-500"
-                              />
-                            )}
-                            {isFailed && (
-                              <X
-                                size={13}
-                                strokeWidth={2.5}
-                                className="text-red-500"
-                              />
-                            )}
-                            {isPending && (
-                              <div className="w-2.5 h-2.5 rounded-full border-2 border-zinc-300" />
-                            )}
-                            {isRunning && (
-                              <Loader2
-                                size={13}
-                                className="text-amber-500 animate-spin"
-                              />
-                            )}
-                          </span>
-                          <span className="sr-only">
-                            {getStatusLabel(step.status)}
-                          </span>
-
-                          <span
-                            className={`text-sm font-medium ${
-                              isFailed
-                                ? "text-red-700"
-                                : isPending
-                                  ? "text-zinc-400"
-                                  : "text-zinc-700"
-                            }`}
-                          >
-                            {step.name}
-                          </span>
-
-                          {step.duration && step.duration !== "--" && (
-                            <span className="text-xs text-zinc-400">
-                              {step.duration}
-                            </span>
-                          )}
-
-                          {isPending && firstFailedStep && (
-                            <span
-                              className="text-xs text-zinc-400 italic"
-                              title={`Blocked by ${firstFailedStep.name}`}
-                            >
-                              blocked by {firstFailedStep.name}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Inline job pills for matrix / parallel steps */}
-                        {step.jobs && step.jobs.length > 0 && (
-                          <ul
-                            className="ml-6 mt-0.5 mb-1 flex flex-wrap gap-1.5"
-                            role="list"
-                            aria-label={`${step.name} jobs`}
-                          >
-                            {step.jobs.map((job) => (
-                              <li key={job.id}>
-                                <JobPill
-                                  name={job.name}
-                                  status={job.status}
-                                  exitCode={job.exitCode}
-                                  onClick={() => {
-                                    // TODO: navigate to job logs for job.id
-                                  }}
-                                />
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
+                {/* Inline failure logs — the raw CI log tail for each
+                      failed job, so the developer sees the actual error
+                      without leaving the build. */}
+                {failedJobs
+                  .filter((job) => job.logExcerpt)
+                  .map((job) => (
+                    <FailureStackTrace
+                      key={`${job.id}-trace`}
+                      jobName={job.name}
+                      command={job.command}
+                      exitCode={job.exitCode}
+                      trace={job.logExcerpt!}
+                    />
+                  ))}
               </div>
             </div>
           </div>

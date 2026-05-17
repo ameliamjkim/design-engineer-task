@@ -13,6 +13,7 @@ export interface Job {
   startTime: string;
   state: JobState;
   exitCode: number | null;
+  logExcerpt?: string;
 }
 
 export interface BuildStep {
@@ -27,5 +28,6 @@ export interface BuildStep {
   startTime?: string;
   state?: JobState;
   exitCode?: number | null;
+  logExcerpt?: string;
   jobs?: Job[];
 }
