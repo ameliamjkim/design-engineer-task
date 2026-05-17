@@ -1,16 +1,22 @@
 import type { BuildStep, StepStatus } from "@/types/build";
 
 /** Human-readable label for a step status. */
-export const getStatusLabel = (s: StepStatus) => {
+export const getStatusLabel = (
+  s: StepStatus | "running" | "passed" | "canceled",
+) => {
   switch (s) {
     case "complete":
+    case "passed":
       return "Passed";
     case "in-progress":
+    case "running":
       return "Running";
     case "failed":
       return "Failed";
     case "pending":
       return "Waiting";
+    case "canceled":
+      return "Canceled";
     default:
       return "Unknown";
   }

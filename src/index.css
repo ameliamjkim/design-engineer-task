@@ -21,8 +21,12 @@
   animation: barber 2s linear infinite;
 }
 
-.build-row:hover:not(
-    :has(button:hover, .build-actions:hover, .job-pills:hover, .failure-spotlight:hover)
+/* On hover, a failed build's card deepens red-50 → red-100. The guard
+   excludes the separate child controls (actions menu, failure rows, log
+   box) so hovering them never darkens the card; the main expand button,
+   the card's own affordance, still does. */
+.build-row[data-status="failed"]:hover:not(
+    :has(.build-actions:hover, .failure-spotlight:hover, .failure-trace:hover)
   ) {
-  @apply bg-zinc-100;
+  @apply bg-red-100;
 }

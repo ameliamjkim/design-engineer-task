@@ -119,6 +119,26 @@ export const mockBuildSteps: BuildStep[] = [
         startTime: "10:46:19",
         state: "normal",
         exitCode: 1,
+        logExcerpt: `FAIL src/example.test.ts
+  ● Example suite › example test case
+
+    expect(received).toEqual(expected) // deep equality
+
+    Expected: "expected value"
+    Received: "actual value"
+
+      10 |   it("example test case", () => {
+      11 |     const result = doSomething();
+    > 12 |     expect(result).toEqual("expected value");
+         |                    ^
+      13 |   });
+
+      at Object.<anonymous> (src/example.test.ts:12:20)
+      at processTicksAndRejections (node:internal/process/task_queues:95:5)
+
+Test Suites: 1 failed, 3 passed, 4 total
+Tests:       1 failed, 27 passed, 28 total
+Time:        6.214 s`,
       },
       {
         id: "test-node20",
